@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encrypted Transmission</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Orbitron', sans-serif;
+}
+
+body{
+  height:100vh;
+  background:#05070d;
+  color:#00ffd5;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:-1;
+}
+
+.container{
+  text-align:center;
+  padding:50px;
+  border:1px solid rgba(0,255,213,0.25);
+  border-radius:18px;
+  backdrop-filter: blur(12px);
+  background: rgba(5,7,13,0.6);
+  box-shadow:0 0 40px rgba(0,255,213,0.15);
+}
+
+.glow{
+  text-shadow:0 0 8px #00ffd5;
+}
+
+/* GLITCH EFFECT */
+.glitch{
+  position:relative;
+  font-size:2.3rem;
+  margin-bottom:20px;
+  animation:glitch 1s infinite;
+}
+
+@keyframes glitch{
+  0%{text-shadow:2px 0 red,-2px 0 cyan;}
+  20%{text-shadow:-2px 0 red,2px 0 cyan;}
+  40%{text-shadow:2px 2px red,-2px -2px cyan;}
+  60%{text-shadow:-2px -2px red,2px 2px cyan;}
+  80%{text-shadow:2px -2px red,-2px 2px cyan;}
+  100%{text-shadow:-2px 0 red,2px 0 cyan;}
+}
+
+.typing{
+  font-size:1rem;
+  color:#7fffe7;
+  min-height:40px;
+  margin-bottom:35px;
+}
+
+.buttons{
+  display:flex;
+  gap:25px;
+  justify-content:center;
+}
+
+button{
+  padding:12px 30px;
+  border-radius:10px;
+  border:1px solid #00ffd5;
+  background:transparent;
+  color:#00ffd5;
+  cursor:pointer;
+  transition:0.25s;
+}
+
+button:hover{
+  background:#00ffd5;
+  color:#05070d;
+  box-shadow:0 0 15px #00ffd5;
+}
+
+.accepted{
+  display:none;
+  font-size:1.8rem;
+  margin-top:20px;
+  color:#00ffd5;
+  text-shadow:0 0 10px #00ffd5;
+}
+
+.warning{
+  position:absolute;
+  top:-40px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#00ffd5;
+  color:#05070d;
+  padding:6px 12px;
+  border-radius:6px;
+  font-size:0.7rem;
+  display:none;
+  white-space:nowrap;
+  box-shadow:0 0 10px #00ffd5;
+}
+
+.deny-wrapper{
+  position:relative;
+}
+
+</style>
+</head>
+<body>
+
+<audio autoplay loop>
+<source src="https://cdn.pixabay.com/download/audio/2021/09/06/audio_3e2b5c6d3a.mp3?filename=futuristic-technology-ambient-9082.mp3" type="audio/mp3">
+</audio>
+
+<canvas id="matrix"></canvas>
+
+<div class="container">
+  <h1 class="glitch">⚡ Incoming Transmission</h1>
+  <div class="typing" id="typing"></div>
+
+  <div class="buttons">
+    <button onclick="accept()">ACCEPT REQUEST</button>
+
+    <div class="deny-wrapper" id="denyWrap">
+      <div class="warning" id="warning">⚠ your system will be hacked</div>
+      <button id="deny" 
+        onmouseover="shift(); showWarning()" 
+        onmouseout="hideWarning()">
+        DENY
+      </button>
+    </div>
+
+  </div>
+
+  <div class="accepted" id="accepted">
+    💚 Connection Established.<br>
+    Valentine Protocol Activated.
+  </div>
+</div>
+
+<script>
+
+// MATRIX EFFECT
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const letters = "01VALENTINE010101LOVEHACK";
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+
+const drops = [];
+for(let i=0;i<columns;i++){
+  drops[i]=1;
+}
+
+function draw(){
+  ctx.fillStyle="rgba(5,7,13,0.08)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle="#00ffd5";
+  ctx.font = fontSize + "px Orbitron";
+
+  for(let i=0;i<drops.length;i++){
+    const text = letters[Math.floor(Math.random()*letters.length)];
+    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+    if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+      drops[i]=0;
+
+    drops[i]++;
+  }
+}
+
+setInterval(draw,33);
+
+// TYPING EFFECT
+const phrases=[
+"Scanning heart frequency...",
+"Compatibility detected.",
+"Firewall bypassed.",
+"You have been identified as my favorite human.",
+"Initiate Valentine Protocol?"
+];
+
+let phraseIndex=0;
+let letterIndex=0;
+
+function type(){
+  if(letterIndex < phrases[phraseIndex].length){
+    document.getElementById('typing').innerHTML += phrases[phraseIndex].charAt(letterIndex);
+    letterIndex++;
+    setTimeout(type,40);
+  }
+  else{
+    setTimeout(()=>{
+      document.getElementById('typing').innerHTML='';
+      letterIndex=0;
+      phraseIndex=(phraseIndex+1)%phrases.length;
+      type();
+    },1200);
+  }
+}
+
+type();
+
+function accept(){
+  document.querySelector('.buttons').style.display='none';
+  document.getElementById('accepted').style.display='block';
+}
+
+function shift(){
+  const wrap=document.getElementById('denyWrap');
+  wrap.style.position='absolute';
+  wrap.style.top=Math.random()*80+'%';
+  wrap.style.left=Math.random()*80+'%';
+}
+
+function showWarning(){
+  document.getElementById('warning').style.display='block';
+}
+
+function hideWarning(){
+  document.getElementById('warning').style.display='none';
+}
+
+</script>
+
+</body>
+</html>
